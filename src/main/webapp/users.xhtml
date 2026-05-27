@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="de"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/layout.xhtml">
+    <ui:define name="content">
+
+        <div class="page-header">
+            <h2>Nutzerverwaltung</h2>
+        </div>
+
+        <h:form id="userForm">
+            <p:dataTable id="userTable"
+                         value="#{userAdminController.users}"
+                         var="u"
+                         styleClass="ticket-table"
+                         emptyMessage="Keine Nutzer vorhanden."
+                         rowKey="#{u.id}">
+
+                <p:column headerText="Username">
+                    <h:outputText value="#{u.username}"/>
+                </p:column>
+
+                <p:column headerText="Name">
+                    <h:outputText value="#{u.fullName}"/>
+                </p:column>
+
+                <p:column headerText="E-Mail">
+                    <h:outputText value="#{u.email}"/>
+                </p:column>
+
+                <p:column headerText="Rolle">
+                    <h:selectOneMenu value="#{u.role}"
+                                     styleClass="form-control-inline"
+                                     disabled="#{u.id == authController.currentUser.id}">
+                        <f:selectItems value="#{userAdminController.roles}" var="r"
+                                       itemValue="#{r}" itemLabel="#{r}"/>
+                    </h:selectOneMenu>
+                    <h:commandLink action="#{userAdminController.changeRole(u.id, u.role)}"
+                                   styleClass="action-icon"
+                                   title="Rolle speichern"
+                                   rendered="#{u.id != authController.currentUser.id}">
+                        <span class="pi pi-check"/>
+                    </h:commandLink>
+                </p:column>
+
+                <p:column headerText="Status">
+                    <h:outputText value="#{u.active ? 'Aktiv' : 'Inaktiv'}"
+                                  styleClass="badge #{u.active ? 'badge-status-ERLEDIGT' : 'badge-status-ABGELEHNT'}"/>
+                </p:column>
+
+                <p:column headerText="Erstellt am">
+                    <h:outputText value="#{u.createdAt}">
+                        <f:convertDateTime pattern="dd.MM.yyyy" type="localDateTime"/>
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Aktionen" styleClass="actions-col">
+                    <h:commandLink action="#{userAdminController.toggleActive(u.id)}"
+                                   styleClass="action-icon #{u.active ? 'action-icon-danger' : 'action-icon-success'}"
+                                   title="#{u.active ? 'Deaktivieren' : 'Aktivieren'}"
+                                   rendered="#{u.id != authController.currentUser.id}"
+                                   onclick="return confirm('Nutzerstatus wirklich ändern?')">
+                        <span class="pi #{u.active ? 'pi-ban' : 'pi-check-circle'}"/>
+                    </h:commandLink>
+                </p:column>
+
+            </p:dataTable>
+        </h:form>
+
+    </ui:define>
+</ui:composition>
+</html>

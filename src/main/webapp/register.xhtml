@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="de"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core">
+
+<ui:composition template="/templates/layout.xhtml">
+
+    <ui:define name="content">
+        <div class="form-page">
+            <h2>Konto erstellen</h2>
+
+            <h:form id="registerForm">
+
+                <div class="form-group">
+                    <h:outputLabel for="username" value="Benutzername"/>
+                    <h:inputText id="username"
+                                 value="#{registrationController.username}"
+                                 required="true"
+                                 requiredMessage="Bitte Benutzernamen eingeben."
+                                 styleClass="form-control">
+                        <f:validateRegex pattern="^[a-zA-Z0-9_]{3,20}$"/>
+                    </h:inputText>
+                    <h:message for="username" styleClass="field-error"/>
+                    <span class="form-hint-small">3–20 Zeichen, nur Buchstaben, Ziffern und _</span>
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="fullName" value="Vollständiger Name"/>
+                    <h:inputText id="fullName"
+                                 value="#{registrationController.fullName}"
+                                 required="true"
+                                 requiredMessage="Bitte Namen eingeben."
+                                 styleClass="form-control">
+                        <f:validateLength minimum="2" maximum="128"/>
+                    </h:inputText>
+                    <h:message for="fullName" styleClass="field-error"/>
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="email" value="E-Mail-Adresse"/>
+                    <h:inputText id="email"
+                                 value="#{registrationController.email}"
+                                 required="true"
+                                 requiredMessage="Bitte E-Mail-Adresse eingeben."
+                                 styleClass="form-control">
+                        <f:validateRegex pattern="^[\w.\-]+@[\w.\-]+\.[a-zA-Z]{2,}$"/>
+                    </h:inputText>
+                    <h:message for="email" styleClass="field-error"/>
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="password" value="Passwort"/>
+                    <h:inputSecret id="password"
+                                   value="#{registrationController.password}"
+                                   required="true"
+                                   requiredMessage="Bitte Passwort eingeben."
+                                   styleClass="form-control">
+                        <f:validateRegex pattern="^(?=.*[A-Za-z])(?=.*\d).{8,}$"/>
+                    </h:inputSecret>
+                    <h:message for="password" styleClass="field-error"/>
+                    <span class="form-hint-small">Mindestens 8 Zeichen, mit Buchstaben und Zahlen</span>
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="confirmPassword" value="Passwort bestätigen"/>
+                    <h:inputSecret id="confirmPassword"
+                                   value="#{registrationController.confirmPassword}"
+                                   required="true"
+                                   requiredMessage="Bitte Passwort bestätigen."
+                                   styleClass="form-control"/>
+                    <h:message for="confirmPassword" styleClass="field-error"/>
+                </div>
+
+                <div class="form-actions">
+                    <h:commandButton value="Registrieren"
+                                     action="#{registrationController.submitRegistration}"
+                                     styleClass="btn btn-primary"/>
+                </div>
+
+                <p class="form-hint">
+                    Bereits registriert?
+                    <h:link value="Jetzt anmelden" outcome="/login.xhtml"/>
+                </p>
+
+            </h:form>
+        </div>
+    </ui:define>
+
+</ui:composition>
+</html>

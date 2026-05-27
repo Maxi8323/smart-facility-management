@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="de"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html">
+
+<ui:composition template="/templates/layout.xhtml">
+
+    <ui:define name="content">
+        <div class="welcome-box">
+            <h2>Willkommen beim Facility-Management-System</h2>
+            <p>Melden Sie Gebäudestörungen schnell und unkompliziert.</p>
+
+            <h:panelGroup rendered="#{not authController.loggedIn}">
+                <h:link value="Jetzt anmelden"    outcome="/login.xhtml"    styleClass="btn btn-primary"/>
+                <h:link value="Konto erstellen"   outcome="/register.xhtml" styleClass="btn btn-secondary"/>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{authController.loggedIn}">
+                <h:link value="Zu den Tickets" outcome="/tickets.xhtml" styleClass="btn btn-primary"/>
+            </h:panelGroup>
+        </div>
+    </ui:define>
+
+</ui:composition>
+</html>

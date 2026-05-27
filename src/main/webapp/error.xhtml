@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="de"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html">
+
+<ui:composition template="/templates/layout.xhtml">
+
+    <ui:define name="content">
+        <div class="error-page">
+            <h2>Ein Fehler ist aufgetreten</h2>
+            <p>Die angeforderte Seite konnte nicht geladen werden.</p>
+            <h:link value="Zurück zur Startseite" outcome="/index.xhtml" styleClass="btn btn-primary"/>
+        </div>
+    </ui:define>
+
+</ui:composition>
+</html>

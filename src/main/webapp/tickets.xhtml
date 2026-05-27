@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="de"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/layout.xhtml">
+
+    <ui:define name="content">
+
+        <div class="page-header">
+            <h2>Tickets</h2>
+            <h:link value="+ Neues Ticket" outcome="/ticket-form.xhtml" styleClass="btn btn-primary"/>
+        </div>
+
+        <!-- Filterleiste -->
+        <h:form id="filterForm" styleClass="filter-bar">
+            <span class="filter-label">Filter:</span>
+
+            <h:selectOneMenu id="filterStatus" value="#{ticketController.filterStatus}" styleClass="form-control-inline">
+                <f:selectItem itemValue="#{null}" itemLabel="– Status: alle –"/>
+                <f:selectItems value="#{ticketController.statuses}" var="s" itemValue="#{s}" itemLabel="#{s}"/>
+            </h:selectOneMenu>
+
+            <h:selectOneMenu id="filterPriority" value="#{ticketController.filterPriority}" styleClass="form-control-inline">
+                <f:selectItem itemValue="#{null}" itemLabel="– Priorität: alle –"/>
+                <f:selectItems value="#{ticketController.priorities}" var="p" itemValue="#{p}" itemLabel="#{p}"/>
+            </h:selectOneMenu>
+
+            <h:commandButton value="Anwenden"
+                             action="#{ticketController.applyFilter}"
+                             styleClass="btn btn-secondary"/>
+            <h:commandButton value="Zurücksetzen"
+                             action="#{ticketController.resetFilter}"
+                             styleClass="btn btn-secondary"
+                             immediate="true"/>
+        </h:form>
+
+        <!-- Tickettabelle -->
+        <h:form id="tableForm">
+            <p:dataTable id="ticketTable"
+                         value="#{ticketController.filteredTickets}"
+                         var="ticket"
+                         emptyMessage="Keine Tickets vorhanden."
+                         styleClass="ticket-table"
+                         rowKey="#{ticket.id}">
+
+                <p:column headerText="Titel">
+                    <h:link value="#{ticket.title}" outcome="/ticket-detail.xhtml">
+                        <f:param name="id" value="#{ticket.id}"/>
+                    </h:link>
+                </p:column>
+
+                <p:column headerText="Kategorie">
+                    <h:outputText value="#{ticket.category}"/>
+                </p:column>
+
+                <p:column headerText="Priorität">
+                    <h:outputText value="#{ticket.priority}"
+                                  styleClass="badge badge-#{ticket.priority == 'KRITISCH' ? 'danger' : ticket.priority == 'HOCH' ? 'warning' : 'default'}"/>
+                </p:column>
+
+                <p:column headerText="Status">
+                    <h:outputText value="#{ticket.status}"
+                                  styleClass="badge badge-status-#{ticket.status}"/>
+                </p:column>
+
+                <p:column headerText="Melder">
+                    <h:outputText value="#{ticket.reporter.fullName}"/>
+                </p:column>
+
+                <p:column headerText="Zugewiesen">
+                    <h:outputText value="#{ticket.assignee != null ? ticket.assignee.fullName : '–'}"/>
+                </p:column>
+
+                <p:column headerText="Erstellt am">
+                    <h:outputText value="#{ticket.createdAt}">
+                        <f:convertDateTime pattern="dd.MM.yyyy HH:mm" type="localDateTime"/>
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Aktionen" styleClass="actions-col">
+                    <h:link outcome="/ticket-detail.xhtml" styleClass="action-icon" title="Detail">
+                        <span class="pi pi-eye"/>
+                        <f:param name="id" value="#{ticket.id}"/>
+                    </h:link>
+
+                    <h:link outcome="/ticket-form.xhtml"
+                            styleClass="action-icon"
+                            title="Bearbeiten"
+                            rendered="#{authController.adminOrTechnician}">
+                        <span class="pi pi-pencil"/>
+                        <f:param name="id" value="#{ticket.id}"/>
+                    </h:link>
+
+                    <h:commandLink action="#{ticketController.deleteTicket(ticket.id)}"
+                                   styleClass="action-icon action-icon-danger"
+                                   title="Löschen"
+                                   rendered="#{authController.admin}"
+                                   onclick="return confirm('Ticket wirklich löschen?')">
+                        <span class="pi pi-trash"/>
+                    </h:commandLink>
+                </p:column>
+
+            </p:dataTable>
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
+</html>

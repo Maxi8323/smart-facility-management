@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="de"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+
+<f:metadata>
+    <f:viewParam name="id" value="#{ticketDetailController.ticketId}"/>
+    <f:viewAction action="#{ticketDetailController.init}"/>
+</f:metadata>
+
+<ui:composition template="/templates/layout.xhtml">
+
+    <ui:define name="content">
+
+        <div class="detail-page">
+
+            <!-- Kopfzeile -->
+            <div class="detail-header">
+                <div>
+                    <h2>#{ticketDetailController.ticket.title}</h2>
+                    <h:outputText value="#{ticketDetailController.ticket.status}"
+                                  styleClass="badge badge-status-#{ticketDetailController.ticket.status}"/>
+                    <span class="badge badge-#{ticketDetailController.ticket.priority == 'KRITISCH' ? 'danger' : ticketDetailController.ticket.priority == 'HOCH' ? 'warning' : 'default'}">
+                        #{ticketDetailController.ticket.priority}
+                    </span>
+                </div>
+                <div class="detail-actions">
+                    <h:link value="← Zur Liste" outcome="/tickets.xhtml" styleClass="btn btn-secondary"/>
+                    <h:link value="Bearbeiten"
+                            outcome="/ticket-form.xhtml"
+                            styleClass="btn btn-primary"
+                            rendered="#{authController.adminOrTechnician}">
+                        <f:param name="id" value="#{ticketDetailController.ticket.id}"/>
+                    </h:link>
+                </div>
+            </div>
+
+            <!-- Ticket-Felder -->
+            <div class="detail-card">
+                <h3>Details</h3>
+                <table class="detail-table">
+                    <tr>
+                        <th>Beschreibung</th>
+                        <td class="description-cell">
+                            <h:outputText value="#{ticketDetailController.ticket.description}"
+                                          style="white-space: pre-wrap;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Kategorie</th>
+                        <td><h:outputText value="#{ticketDetailController.ticket.category}"/></td>
+                    </tr>
+                    <tr>
+                        <th>Standort</th>
+                        <td>
+                            <h:outputText value="#{ticketDetailController.ticket.location != null ? ticketDetailController.ticket.location : '–'}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Melder</th>
+                        <td><h:outputText value="#{ticketDetailController.ticket.reporter.fullName}"/></td>
+                    </tr>
+                    <tr>
+                        <th>Zugewiesen an</th>
+                        <td>
+                            <h:outputText value="#{ticketDetailController.ticket.assignee != null ? ticketDetailController.ticket.assignee.fullName : '–'}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Geschätzte Kosten</th>
+                        <td>
+                            <h:outputText value="#{ticketDetailController.ticket.estimatedCost}"
+                                          rendered="#{ticketDetailController.ticket.estimatedCost != null}">
+                                <f:convertNumber type="currency" currencySymbol="€"/>
+                            </h:outputText>
+                            <h:outputText value="–"
+                                          rendered="#{ticketDetailController.ticket.estimatedCost == null}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Erstellt am</th>
+                        <td>
+                            <h:outputText value="#{ticketDetailController.ticket.createdAt}">
+                                <f:convertDateTime pattern="dd.MM.yyyy HH:mm" type="localDateTime"/>
+                            </h:outputText>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Zuletzt geändert</th>
+                        <td>
+                            <h:outputText value="#{ticketDetailController.ticket.updatedAt}">
+                                <f:convertDateTime pattern="dd.MM.yyyy HH:mm" type="localDateTime"/>
+                            </h:outputText>
+                        </td>
+                    </tr>
+                    <tr rendered="#{ticketDetailController.ticket.resolvedAt != null}">
+                        <th>Abgeschlossen am</th>
+                        <td>
+                            <h:outputText value="#{ticketDetailController.ticket.resolvedAt}">
+                                <f:convertDateTime pattern="dd.MM.yyyy HH:mm" type="localDateTime"/>
+                            </h:outputText>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Kommentare (COULD-1) -->
+            <div class="detail-card">
+                <h3>Kommentare (#{ticketDetailController.ticket.comments.size()})</h3>
+
+                <ui:repeat value="#{ticketDetailController.ticket.comments}" var="comment">
+                    <div class="comment-item">
+                        <div class="comment-meta">
+                            <strong>#{comment.author.fullName}</strong>
+                            <span class="comment-date">
+                                <h:outputText value="#{comment.createdAt}">
+                                    <f:convertDateTime pattern="dd.MM.yyyy HH:mm" type="localDateTime"/>
+                                </h:outputText>
+                            </span>
+                        </div>
+                        <p class="comment-content">#{comment.content}</p>
+                    </div>
+                </ui:repeat>
+
+                <p rendered="#{ticketDetailController.ticket.comments.isEmpty()}"
+                   class="no-comments">Noch keine Kommentare.</p>
+            </div>
+
+            <!-- Kommentar hinzufügen -->
+            <div class="detail-card" rendered="#{ticketDetailController.canComment()}">
+                <h3>Kommentar schreiben</h3>
+
+                <h:form id="commentForm">
+                    <div class="form-group">
+                        <h:inputTextarea id="commentText"
+                                         value="#{ticketDetailController.newComment}"
+                                         rows="4"
+                                         required="true"
+                                         requiredMessage="Bitte einen Kommentar eingeben."
+                                         styleClass="form-control">
+                            <f:validateLength minimum="1" maximum="2000"/>
+                        </h:inputTextarea>
+                        <h:message for="commentText" styleClass="field-error"/>
+                    </div>
+                    <div class="form-actions">
+                        <h:commandButton value="Kommentar absenden"
+                                         action="#{ticketDetailController.addComment}"
+                                         styleClass="btn btn-primary"
+                                         ajax="false"/>
+                    </div>
+                </h:form>
+            </div>
+
+        </div>
+
+    </ui:define>
+
+</ui:composition>
+</html>

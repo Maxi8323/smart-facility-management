@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="de"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core">
+
+<f:metadata>
+    <f:viewParam name="id" value="#{ticketFormController.ticketId}"/>
+    <f:viewAction action="#{ticketFormController.init}"/>
+</f:metadata>
+
+<ui:composition template="/templates/layout.xhtml">
+
+    <ui:define name="content">
+
+        <div class="form-page form-page-wide">
+            <h2>#{ticketFormController.editMode ? 'Ticket bearbeiten' : 'Neues Ticket erfassen'}</h2>
+
+            <h:form id="ticketForm">
+
+                <!-- Titel -->
+                <div class="form-group">
+                    <h:outputLabel for="title" value="Titel *"/>
+                    <h:inputText id="title"
+                                 value="#{ticketFormController.ticket.title}"
+                                 required="true"
+                                 requiredMessage="Bitte einen Titel eingeben."
+                                 styleClass="form-control">
+                        <f:validateLength minimum="5" maximum="100"/>
+                    </h:inputText>
+                    <h:message for="title" styleClass="field-error"/>
+                </div>
+
+                <!-- Beschreibung -->
+                <div class="form-group">
+                    <h:outputLabel for="description" value="Beschreibung *"/>
+                    <h:inputTextarea id="description"
+                                     value="#{ticketFormController.ticket.description}"
+                                     required="true"
+                                     requiredMessage="Bitte eine Beschreibung eingeben."
+                                     rows="5"
+                                     styleClass="form-control">
+                        <f:validateLength minimum="10" maximum="2000"/>
+                    </h:inputTextarea>
+                    <h:message for="description" styleClass="field-error"/>
+                </div>
+
+                <!-- Kategorie -->
+                <div class="form-group">
+                    <h:outputLabel for="category" value="Kategorie *"/>
+                    <h:selectOneMenu id="category"
+                                     value="#{ticketFormController.ticket.category}"
+                                     required="true"
+                                     requiredMessage="Bitte eine Kategorie wählen."
+                                     styleClass="form-control">
+                        <f:selectItem itemValue="#{null}" itemLabel="– bitte wählen –"/>
+                        <f:selectItems value="#{ticketFormController.categories}" var="c"
+                                       itemValue="#{c}" itemLabel="#{c}"/>
+                    </h:selectOneMenu>
+                    <h:message for="category" styleClass="field-error"/>
+                </div>
+
+                <!-- Priorität -->
+                <div class="form-group">
+                    <h:outputLabel for="priority" value="Priorität *"/>
+                    <h:selectOneMenu id="priority"
+                                     value="#{ticketFormController.ticket.priority}"
+                                     required="true"
+                                     requiredMessage="Bitte eine Priorität wählen."
+                                     styleClass="form-control">
+                        <f:selectItem itemValue="#{null}" itemLabel="– bitte wählen –"/>
+                        <f:selectItems value="#{ticketFormController.priorities}" var="p"
+                                       itemValue="#{p}" itemLabel="#{p}"/>
+                    </h:selectOneMenu>
+                    <h:message for="priority" styleClass="field-error"/>
+                </div>
+
+                <!-- Standort -->
+                <div class="form-group">
+                    <h:outputLabel for="location" value="Standort / Raum"/>
+                    <h:inputText id="location"
+                                 value="#{ticketFormController.ticket.location}"
+                                 styleClass="form-control">
+                        <f:validateLength maximum="200"/>
+                    </h:inputText>
+                    <h:message for="location" styleClass="field-error"/>
+                </div>
+
+                <!-- ===== Nur für ADMIN / TECHNICIAN im Edit-Modus ===== -->
+                <h:panelGroup rendered="#{authController.adminOrTechnician and ticketFormController.editMode}">
+
+                    <!-- Status (MUST-3) -->
+                    <div class="form-group">
+                        <h:outputLabel for="status" value="Status"/>
+                        <h:selectOneMenu id="status"
+                                         value="#{ticketFormController.ticket.status}"
+                                         styleClass="form-control">
+                            <f:selectItems value="#{ticketFormController.statuses}" var="s"
+                                           itemValue="#{s}" itemLabel="#{s}"/>
+                        </h:selectOneMenu>
+                        <h:message for="status" styleClass="field-error"/>
+                    </div>
+
+                    <!-- Zugewiesener Bearbeiter (MUST-3) -->
+                    <div class="form-group">
+                        <h:outputLabel for="assignee" value="Zugewiesen an"/>
+                        <h:selectOneMenu id="assignee"
+                                         value="#{ticketFormController.selectedAssigneeId}"
+                                         styleClass="form-control">
+                            <f:selectItem itemValue="#{null}" itemLabel="– Nicht zugewiesen –"/>
+                            <f:selectItems value="#{ticketFormController.assignableUsers}" var="u"
+                                           itemValue="#{u.id}" itemLabel="#{u.fullName}"/>
+                        </h:selectOneMenu>
+                        <h:message for="assignee" styleClass="field-error"/>
+                    </div>
+
+                    <!-- Geschätzte Kosten (MUST-3) -->
+                    <div class="form-group">
+                        <h:outputLabel for="estimatedCost" value="Geschätzte Kosten (€)"/>
+                        <h:inputText id="estimatedCost"
+                                     value="#{ticketFormController.ticket.estimatedCost}"
+                                     styleClass="form-control">
+                            <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
+                        </h:inputText>
+                        <h:message for="estimatedCost" styleClass="field-error"/>
+                    </div>
+
+                </h:panelGroup>
+
+                <!-- Aktionen -->
+                <div class="form-actions">
+                    <h:commandButton value="Speichern"
+                                     action="#{ticketFormController.save}"
+                                     styleClass="btn btn-primary"/>
+                    <h:link value="Abbrechen"
+                            outcome="/tickets.xhtml"
+                            styleClass="btn btn-secondary"
+                            immediate="true"/>
+                </div>
+
+            </h:form>
+        </div>
+
+    </ui:define>
+
+</ui:composition>
+</html>
