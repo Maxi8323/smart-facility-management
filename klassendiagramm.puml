@@ -1,0 +1,74 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+skinparam shadowing false
+
+enum UserRole {
+  ADMIN
+  TECHNICIAN
+  REPORTER
+}
+
+enum TicketStatus {
+  OFFEN
+  IN_BEARBEITUNG
+  ERLEDIGT
+  ABGELEHNT
+}
+
+enum TicketPriority {
+  NIEDRIG
+  MITTEL
+  HOCH
+  KRITISCH
+}
+
+enum TicketCategory {
+  HEIZUNG
+  ELEKTRO
+  SANITAER
+  IT
+  SONSTIGES
+}
+
+class User {
+  - id : Long
+  - username : String
+  - passwordHash : String
+  - email : String
+  - fullName : String
+  - role : UserRole
+  - active : boolean
+  - createdAt : LocalDateTime
+}
+
+class Ticket {
+  - id : Long
+  - title : String
+  - description : String
+  - category : TicketCategory
+  - priority : TicketPriority
+  - status : TicketStatus
+  - location : String
+  - estimatedCost : BigDecimal
+  - createdAt : LocalDateTime
+  - updatedAt : LocalDateTime
+  - resolvedAt : LocalDateTime
+}
+
+class TicketComment {
+  - id : Long
+  - content : String
+  - createdAt : LocalDateTime
+}
+
+User "1" --> "0..*" Ticket : reporter
+User "0..1" ..> "0..*" Ticket : assignee
+Ticket "1" *--> "0..*" TicketComment : comments
+User "1" --> "0..*" TicketComment : author
+
+User --> UserRole
+Ticket --> TicketStatus
+Ticket --> TicketPriority
+Ticket --> TicketCategory
+@enduml
