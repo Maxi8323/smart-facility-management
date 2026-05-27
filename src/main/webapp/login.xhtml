@@ -32,6 +32,8 @@
                     <h:message for="password" styleClass="field-error"/>
                 </div>
 
+                <h:messages globalOnly="true" styleClass="msg-error" errorClass="msg-error"/>
+
                 <div class="form-actions">
                     <h:commandButton value="Anmelden"
                                      action="#{loginController.submitLogin}"
